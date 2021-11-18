@@ -1,0 +1,215 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>近期新增功能 | DevYM Note | Do what you like is the most important thing !</title>
+
+  
+  <meta name="author" content="DevYM">
+  
+
+  
+  <meta name="description" content="Android Developer">
+  
+
+  
+  
+  <meta name="keywords" content="">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="近期新增功能"/>
+
+  <meta property="og:site_name" content="DevYM Note"/>
+
+  
+  <meta property="og:image" content="/favicon.ico"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="DevYM Note" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">DevYM Note</a>
+    </h1>
+    <p class="site-description">Do what you like is the most important thing !</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">主页</a></li>
+      
+        <li><a href="/archives">归档</a></li>
+      
+        <li><a href="/about">关于</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>近期新增功能</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2021/11/18/袁明-近期新增功能_20211028/" rel="bookmark">
+        <time class="entry-date published" datetime="2021-11-18T10:50:18.954Z">
+          2021-11-18
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h4 id="1-登录模块新增登录失败次数过多时锁定登录功能"><a href="#1-登录模块新增登录失败次数过多时锁定登录功能" class="headerlink" title="1.登录模块新增登录失败次数过多时锁定登录功能"></a>1.登录模块新增登录失败次数过多时锁定登录功能</h4><ul>
+<li><strong>功能效果图</strong></li>
+</ul>
+<p><img src="C:\Users\DevYuan\AppData\Roaming\Typora\typora-user-images\image-20211029091948079.png" alt="image-20211029091948079"></p>
+<ul>
+<li><strong>示例代码</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.setLoginErrorTimesExceededLockedEnable(<span class="keyword">true</span>); <span class="comment">// 登录失败次数过多时锁定登录功能是否启用</span></span><br><span class="line"><span class="keyword">this</span>.setLoginErrorTimesExceededLockedTimes(<span class="number">30</span>); <span class="comment">// 设置登陆失败次数过多时锁定时间（单位为秒）</span></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 登录失败次数过多时锁定登录功能是否启用</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> enable</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setLoginErrorTimesExceededLockedEnable</span><span class="params">(<span class="keyword">boolean</span> enable)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.isLoginErrorTimesExceededLockedEnable = enable;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 设置登陆失败次数过多时锁定时间（单位为秒），默认30s</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> times</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setLoginErrorTimesExceededLockedTimes</span><span class="params">(<span class="keyword">int</span> times)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (times &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>.loginErrorTimesExceededLockedTimes = times;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-添加多岗位用户APP组装权限合并功能"><a href="#2-添加多岗位用户APP组装权限合并功能" class="headerlink" title="2.添加多岗位用户APP组装权限合并功能"></a>2.添加多岗位用户APP组装权限合并功能</h4><ul>
+<li><p><strong>功能介绍</strong><br>多岗位配置组装权限的场景下使用，在不同岗位配置的权限可能是不一样的，比如岗位A的权限有1、2、3，岗位B的权限有2、3、4，原始效果登录只会有各自岗位的权限，启用合并后的效果该账号就拥有了1、2、3、4全部权限。</p>
+</li>
+<li><p><strong>示例代码</strong></p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FrameworkManager.getInstance().setMultiPositionPermissionMergeEnable(<span class="keyword">true</span>); <span class="comment">// 启用多岗位权限合并功能（APP启动时set）</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>使用说明</strong><br>在项目的Application类中启用，注意：若FrameworkManager中没该API则需更新LongriseLib，设置后无效果需确认后台LEAP.Studio.BLL.jar包是否有更新（更新2021.09月中旬后的版本）</li>
+</ul>
+<h4 id="3-调整OFD许可证设置方式"><a href="#3-调整OFD许可证设置方式" class="headerlink" title="3.调整OFD许可证设置方式"></a>3.调整OFD许可证设置方式</h4><ul>
+<li><strong>示例代码</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;!--OFD KEY--&gt;</span><br><span class="line">&lt;meta-data</span><br><span class="line">    android:name=<span class="string">&quot;com.longrise.ofd.licenseName&quot;</span></span><br><span class="line">    android:value=<span class="string">&quot;测试-com.suwell.sample&quot;</span> /&gt;</span><br><span class="line">&lt;meta-data</span><br><span class="line">    android:name=<span class="string">&quot;com.longrise.ofd.licenseValue&quot;</span></span><br><span class="line">    android:value=<span class="string">&quot;F77E8DFC822157D6C6A42A73AE7FF0A42318AD9C&quot;</span> /&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>使用说明</strong><br>相关module：LongriseOFD和LongriseLib</li>
+</ul>
+<h4 id="4-列表上拉刷新，下拉加载更多插件（CustomListView）"><a href="#4-列表上拉刷新，下拉加载更多插件（CustomListView）" class="headerlink" title="4.列表上拉刷新，下拉加载更多插件（CustomListView）"></a>4.列表上拉刷新，下拉加载更多插件（CustomListView）</h4><p>com.longrise.android.widget.standardwidget.listview.CustomListView</p>
+<ul>
+<li><p><strong>功能效果图</strong></p>
+<ul>
+<li>叠加OVERLAY</li>
+</ul>
+</li>
+</ul>
+<img src="C:\Users\DevYuan\AppData\Roaming\Typora\typora-user-images\image-20211029101627124.png" alt="image-20211029101627124" style="zoom:60%;" />
+
+<ul>
+<li>单页刷新（CAROUSEL）</li>
+</ul>
+<img src="C:\Users\DevYuan\AppData\Roaming\Typora\typora-user-images\image-20211029101841891.png" alt="image-20211029101841891" style="zoom:60%;" />
+
+<ul>
+<li><p><strong>功能介绍</strong><br>支持叠加（OVERLAY），单页刷新（CAROUSEL），可通过setListType(ListTypeEnum listTypeEnum)设置</p>
+<ul>
+<li><p>叠加OVERLAY</p>
+<ul>
+<li><p>支持下拉刷新、上拉加载更多</p>
+</li>
+<li><p>上拉到底部支持自动刷新（默认启动，可通过setAutoLoadWhenScrollBottom(boolean autoLoadWhenScrollBottom)设置）</p>
+</li>
+</ul>
+</li>
+<li><p>单页刷新（CAROUSEL）</p>
+<ul>
+<li>通过按钮方式实现上一页、下一页、跳转到具体的某一页数据加载</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+  
+	<section id="comment" class="comment">
+		<div id="gitalk-container"></div>
+	</section>
+	<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+	<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+	<script>
+		var gitalk = new Gitalk({
+			clientID: '674be299c17c8b33a10d',
+			clientSecret: '944492aa3c097c2e7bbdd7b0d35c20bf3bcc3104',
+			repo: 'https://devym.github.io/',
+			owner: 'DevYM',
+			admin: ['DevYM'],
+			id: location.pathname,
+			distractionFreeMode: false
+		})
+
+		gitalk.render('gitalk-container')
+	</script>
+
+
+
+
+
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    </br>
+    
+    &copy; 2021 DevYM
+    
+  </p>
+</footer>
+    
+    
+  </div>
+</div>
+</body>
+</html>
