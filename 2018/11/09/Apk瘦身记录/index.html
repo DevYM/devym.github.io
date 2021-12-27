@@ -86,7 +86,7 @@
     <div class="entry">
       
         <h3 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h3><p>随着项目不断壮大，在我们的日常开发中可能渐渐的会出现打出的apk文件越来越大的情况，这就导致在更新新版本的时候需要等待更久的时间，如果使用流量来更新的话就会损耗更多的流量（虽然现在无线流程套餐的土豪越来越多，但对于流量少的老铁多少会有点肉疼），所以APK的瘦身优化越来越重要</p>
-<h3 id="二、apk文件结构分析"><a href="#二、apk文件结构分析" class="headerlink" title="二、apk文件结构分析"></a>二、apk文件结构分析</h3><p>我们将apk文件托到Android Studio 工具中（文雅点的方式：菜单栏 Build –&gt;Analyze APK, 选择要分析的APK包）如下图：<br><img src="https://raw.githubusercontent.com/DevYm/BlogResource/master/img/Apk%E7%98%A6%E8%BA%AB-01.png"></p>
+<h3 id="二、apk文件结构分析"><a href="#二、apk文件结构分析" class="headerlink" title="二、apk文件结构分析"></a>二、apk文件结构分析</h3><p>我们将apk文件托到Android Studio 工具中（文雅点的方式：菜单栏 Build –&gt;Analyze APK, 选择要分析的APK包）如下图：<br><img src="https://gitee.com/DevYM/BlogResource/raw/master/img/Apk%E7%98%A6%E8%BA%AB-01.png"></p>
 <ul>
 <li>lib文件夹：这个目录中存放着应用依赖的native库文件，这些以.so结尾的文件是用C或者C++语言编写的</li>
 <li>classes.dex文件：classes.dex是java源码编译后生成的java字节码文件（首先是java文件通过jdk编译成字节码文件然后经过dex编译成classes.dex）；</li>
@@ -99,7 +99,7 @@
 <h3 id="三、优化方案"><a href="#三、优化方案" class="headerlink" title="三、优化方案"></a>三、优化方案</h3><p>从apk结构上来看，主要是lib、classes.dex、assets、res这几块占用比较大</p>
 <h4 id="1-lib中资源优化"><a href="#1-lib中资源优化" class="headerlink" title="1.lib中资源优化"></a>1.lib中资源优化</h4><p>lib这块的资源优化也就是对使用so文件的优化，很多第三方sdk的功能都是以so包的形式来接入的，为了支持不同指令集的情况，一般比较大众的第三方sdk都支持了armeabi、armeabi-v7a、arm64-v8a、x86、x86_64五种形式的so包，根据数据统计基本使用armeabi、armeabi-v7a两个目录就几乎可以兼容市面上绝大多数移动设备的cpu版本。因此我们在app的build.gradle文件中进行如下配置来进行优化：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 配置so库架构（真机：arm, 模拟器：x86）</span></span><br><span class="line">ndk&#123;</span><br><span class="line">    abiFilters(<span class="string">&quot;armeabi&quot;</span>,<span class="string">&quot;armeabi-v7a&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>各个ABI版本对应的指令集可参照下图<br><img src="https://raw.githubusercontent.com/DevYm/BlogResource/master/img/Apk%E7%98%A6%E8%BA%AB-02.png"></p>
+<p>各个ABI版本对应的指令集可参照下图<br><img src="https://gitee.com/DevYM/BlogResource/raw/master/img/Apk%E7%98%A6%E8%BA%AB-02.png"></p>
 <h4 id="2-减少classes-dex大小"><a href="#2-减少classes-dex大小" class="headerlink" title="2.减少classes.dex大小"></a>2.减少classes.dex大小</h4><p>单个的 classes.dex 文件可以容纳大约 64K 方法。如果你达到了这个限制，就会报65535错误，这个时候就需要采用一种分包的方式来进行编译。这将会创建另一个 classes1.dex 文件去存储剩下的方法。所以 classes.dex 文件数目由你的方法数而定。</p>
 <ul>
 <li>减少第三库的使用<br>有些使用到第三方库的功能可能只是一小部分功能，这种时候引入这个第三方库付出的代价就有点高了，所以需要慎重使用</li>
@@ -109,7 +109,7 @@
 <h4 id="3-资源文件优化策略"><a href="#3-资源文件优化策略" class="headerlink" title="3.资源文件优化策略"></a>3.资源文件优化策略</h4><ul>
 <li>使用WebP文件格式<br>在Android 3.2（API级别13）或更高级别时 ，可以使用WebP文件格式来制作图像，这种文件格式比PNG或JPEG文件更有优势，可以提供比JPEG或PNG更好的压缩。<br>Android 4.0 (API level 14) 支持有损压缩的WebP格式，Android 4.3 (API level 18) 开始支持无损透明WebP图像。</li>
 </ul>
-<p>Android Studio可以将PNG，JPG，BMP或静态GIF图像转换为WebP格式.使用方法可参照谷歌官方<br>Android Developers &gt; Android Studio &gt; User guide &gt; 创建WebP图像的具体步骤，下面贴出一张转换前和转换后的对比图<br><img src="https://raw.githubusercontent.com/DevYm/BlogResource/master/img/Apk%E7%98%A6%E8%BA%AB-03.png"><br>1MB的图片转换后的大小为26.7KB，压缩后的效果跟压缩前几乎看不出有什么差异</p>
+<p>Android Studio可以将PNG，JPG，BMP或静态GIF图像转换为WebP格式.使用方法可参照谷歌官方<br>Android Developers &gt; Android Studio &gt; User guide &gt; 创建WebP图像的具体步骤，下面贴出一张转换前和转换后的对比图<br><img src="https://gitee.com/DevYM/BlogResource/raw/master/img/Apk%E7%98%A6%E8%BA%AB-03.png"><br>1MB的图片转换后的大小为26.7KB，压缩后的效果跟压缩前几乎看不出有什么差异</p>
 <ul>
 <li>使用SVG矢量图</li>
 </ul>
@@ -117,7 +117,7 @@
 <p>缺陷</p>
 <p>在谷歌官方文档中有介绍，矢量图首次加载时可能消耗更多的 CPU 资源，建议将矢量图像限制为最大 200 x 200 dp，否则，绘制它可能需要耗费很长的时间，所以不建议大尺寸图片使用</p>
 <p>其实在我们新建一个app时也会发现res目录下会有一个mipmap-anydpi-v26文件夹下的默认图标使用的就是svg矢量图</p>
-<p><img src="https://raw.githubusercontent.com/DevYm/BlogResource/master/img/Apk%E7%98%A6%E8%BA%AB-04.png"></p>
+<p><img src="https://gitee.com/DevYM/BlogResource/raw/master/img/Apk%E7%98%A6%E8%BA%AB-04.png"></p>
 <ul>
 <li>移除未使用的备用资源<br>主要将对于国际化支持只打包中文资源</li>
 </ul>
