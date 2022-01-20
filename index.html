@@ -63,6 +63,78 @@
 
   
     
+    <h3 class="article-title"><a href="/2021/01/09/Monitor-Network-Status-Callback/"><span>Android即时监听网络状态</span></a></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2021/01/09/Monitor-Network-Status-Callback/" rel="bookmark">
+        <time class="entry-date published" datetime="2021-01-08T16:00:00.000Z">
+          2021-01-09
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p><strong>记录开发成长过程中的点点滴滴，在探索的道路上从未止步，共勉！！！</strong></p>
+<p>近期重新梳理了下之前封装的即时监听网络状态变化功能逻辑，此文记录下整个思路。</p>
+<p>即时监听网络状态变化功能的应用场景还是比较广泛的，比如网络断开时给出提示、WiFi切换到蜂窝移动网络时播放视频下载文件等提示用户注意流量消耗等。</p>
+<p>从API Level 21也就是Android5.0新增的一种监听网络状态回调的方式ConnectivityManager.NetworkCallback，对于Android5.0以下设备则采用通过接收系统发送的android.net.conn.CONNECTIVITY_CHANGE广播的方式来实现。</p>
+        
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/基础架构/">基础架构</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/网络状态/">网络状态</a>
+    </span>
+    
+
+    </div>
+
+    
+    <div class="article-meta pull-right">
+      <span>
+        <i class="icon-comments"></i>
+        <span>
+          <a href="/2021/01/09/Monitor-Network-Status-Callback/#comment">评论</a>
+        </span>
+      </span>
+    </div>
+    
+  </div>
+</article>
+
+
+
+  <article>
+
+  
+    
     <h3 class="article-title"><a href="/2018/11/09/Apk-size-optimization/"><span>APK瘦身过程记录</span></a></h3>
     
   
@@ -83,7 +155,8 @@
   <div class="article-content">
     <div class="entry">
       
-        <h3 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h3><p>随着项目不断壮大，在我们的日常开发中可能渐渐的会出现打出的apk文件越来越大的情况，这就导致在更新新版本的时候需要等待更久的时间，如果使用流量来更新的话就会损耗更多的流量（虽然现在无线流程套餐的土豪越来越多，但对于流量少的老铁多少会有点肉疼），所以APK的瘦身优化越来越重要</p>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p><strong>记录开发成长过程中的点点滴滴，在探索的道路上从未止步，共勉！！！</strong></p>
+<p>随着项目不断壮大，在我们的日常开发中可能渐渐的会出现打出的apk文件越来越大的情况，这就导致在更新新版本的时候需要等待更久的时间，如果使用流量来更新的话就会损耗更多的流量（虽然现在无线流程套餐的土豪越来越多，但对于流量少的老铁多少会有点肉疼），所以APK的瘦身优化越来越重要</p>
         
       
     </div>
@@ -141,7 +214,7 @@
     Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
     </br>
     
-    &copy; 2021 DevYM
+    &copy; 2022 DevYM
     
   </p>
 </footer>

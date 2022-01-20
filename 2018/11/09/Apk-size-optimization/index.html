@@ -85,10 +85,11 @@
   <div class="article-content">
     <div class="entry">
       
-        <h3 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h3><p>随着项目不断壮大，在我们的日常开发中可能渐渐的会出现打出的apk文件越来越大的情况，这就导致在更新新版本的时候需要等待更久的时间，如果使用流量来更新的话就会损耗更多的流量（虽然现在无线流程套餐的土豪越来越多，但对于流量少的老铁多少会有点肉疼），所以APK的瘦身优化越来越重要</p>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p><strong>记录开发成长过程中的点点滴滴，在探索的道路上从未止步，共勉！！！</strong></p>
+<p>随着项目不断壮大，在我们的日常开发中可能渐渐的会出现打出的apk文件越来越大的情况，这就导致在更新新版本的时候需要等待更久的时间，如果使用流量来更新的话就会损耗更多的流量（虽然现在无线流程套餐的土豪越来越多，但对于流量少的老铁多少会有点肉疼），所以APK的瘦身优化越来越重要</p>
 <span id="more"></span>
 
-<h3 id="二、apk文件结构分析"><a href="#二、apk文件结构分析" class="headerlink" title="二、apk文件结构分析"></a>二、apk文件结构分析</h3><p>我们将apk文件托到Android Studio 工具中（文雅点的方式：菜单栏 Build –&gt;Analyze APK, 选择要分析的APK包）如下图：<br><img src="https://gitee.com/DevYM/BlogResource/raw/master/img/Apk%E7%98%A6%E8%BA%AB-01.png"></p>
+<h3 id="apk文件结构分析"><a href="#apk文件结构分析" class="headerlink" title="apk文件结构分析"></a>apk文件结构分析</h3><p>我们将apk文件托到Android Studio 工具中（文雅点的方式：菜单栏 Build –&gt;Analyze APK, 选择要分析的APK包）如下图：<br><img src="https://gitee.com/DevYM/BlogResource/raw/master/img/Apk%E7%98%A6%E8%BA%AB-01.png"></p>
 <ul>
 <li>lib文件夹：这个目录中存放着应用依赖的native库文件，这些以.so结尾的文件是用C或者C++语言编写的</li>
 <li>classes.dex文件：classes.dex是java源码编译后生成的java字节码文件（首先是java文件通过jdk编译成字节码文件然后经过dex编译成classes.dex）；</li>
@@ -98,7 +99,7 @@
 <li>AndroidManifest.xml文件：Android应用的配置清单文件，它向Android系统介绍了这个应用的很多配置信息，系统可以根据这个文件在相当程度上了解这个应用的一些信息；</li>
 <li>assets文件夹：跟res目录有点相似，但assets中的文件则直接通过访问文件的地址来使用AssetManager类进行访问，而且assets目录你可以添加任意深度的子目录，这一点会比较方便管理和归类文件。</li>
 </ul>
-<h3 id="三、优化方案"><a href="#三、优化方案" class="headerlink" title="三、优化方案"></a>三、优化方案</h3><p>从apk结构上来看，主要是lib、classes.dex、assets、res这几块占用比较大</p>
+<h3 id="优化方案"><a href="#优化方案" class="headerlink" title="优化方案"></a>优化方案</h3><p>从apk结构上来看，主要是lib、classes.dex、assets、res这几块占用比较大</p>
 <h4 id="1-lib中资源优化"><a href="#1-lib中资源优化" class="headerlink" title="1.lib中资源优化"></a>1.lib中资源优化</h4><p>lib这块的资源优化也就是对使用so文件的优化，很多第三方sdk的功能都是以so包的形式来接入的，为了支持不同指令集的情况，一般比较大众的第三方sdk都支持了armeabi、armeabi-v7a、arm64-v8a、x86、x86_64五种形式的so包，根据数据统计基本使用armeabi、armeabi-v7a两个目录就几乎可以兼容市面上绝大多数移动设备的cpu版本。因此我们在app的build.gradle文件中进行如下配置来进行优化：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 配置so库架构（真机：arm, 模拟器：x86）</span></span><br><span class="line">ndk&#123;</span><br><span class="line">    abiFilters(<span class="string">&quot;armeabi&quot;</span>,<span class="string">&quot;armeabi-v7a&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>各个ABI版本对应的指令集可参照下图<br><img src="https://gitee.com/DevYM/BlogResource/raw/master/img/Apk%E7%98%A6%E8%BA%AB-02.png"></p>
@@ -219,7 +220,7 @@
     Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
     </br>
     
-    &copy; 2021 DevYM
+    &copy; 2022 DevYM
     
   </p>
 </footer>

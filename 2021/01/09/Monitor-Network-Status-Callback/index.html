@@ -1,0 +1,233 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Android即时监听网络状态 | DevYM Note | Do what you like is the most important thing !</title>
+
+  
+  <meta name="author" content="DevYM">
+  
+
+  
+  <meta name="description" content="Android Developer">
+  
+
+  
+  
+  <meta name="keywords" content="网络状态">
+  
+
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <meta property="og:title" content="Android即时监听网络状态"/>
+
+  <meta property="og:site_name" content="DevYM Note"/>
+
+  
+  <meta property="og:image" content="/favicon.ico"/>
+  
+
+  <link href="/favicon.ico" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="DevYM Note" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="blog">
+  <div class="content">
+
+    <header>
+  <div class="site-branding">
+    <h1 class="site-title">
+      <a href="/">DevYM Note</a>
+    </h1>
+    <p class="site-description">Do what you like is the most important thing !</p>
+  </div>
+  <nav class="site-navigation">
+    <ul>
+      
+        <li><a href="/">主页</a></li>
+      
+        <li><a href="/archives">归档</a></li>
+      
+        <li><a href="/about">关于</a></li>
+      
+    </ul>
+  </nav>
+</header>
+
+    <main class="site-main posts-loop">
+    <article>
+
+  
+    
+    <h3 class="article-title"><span>Android即时监听网络状态</span></h3>
+    
+  
+
+  <div class="article-top-meta">
+    <span class="posted-on">
+      <a href="/2021/01/09/Monitor-Network-Status-Callback/" rel="bookmark">
+        <time class="entry-date published" datetime="2021-01-08T16:00:00.000Z">
+          2021-01-09
+        </time>
+      </a>
+    </span>
+  </div>
+
+
+  
+
+  <div class="article-content">
+    <div class="entry">
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p><strong>记录开发成长过程中的点点滴滴，在探索的道路上从未止步，共勉！！！</strong></p>
+<p>近期重新梳理了下之前封装的即时监听网络状态变化功能逻辑，此文记录下整个思路。</p>
+<p>即时监听网络状态变化功能的应用场景还是比较广泛的，比如网络断开时给出提示、WiFi切换到蜂窝移动网络时播放视频下载文件等提示用户注意流量消耗等。</p>
+<p>从API Level 21也就是Android5.0新增的一种监听网络状态回调的方式ConnectivityManager.NetworkCallback，对于Android5.0以下设备则采用通过接收系统发送的android.net.conn.CONNECTIVITY_CHANGE广播的方式来实现。</p>
+<span id="more"></span>
+
+<h3 id="具体的实现逻辑"><a href="#具体的实现逻辑" class="headerlink" title="具体的实现逻辑"></a>具体的实现逻辑</h3><ul>
+<li>由于兼容了两种方式来实现，因此这里采用了接口分离原则，首先定义一个接口</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Created by DevYM</span></span><br><span class="line"><span class="comment"> * description：网络状态监听接口</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">INetwork</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">registerObserver</span><span class="params">(Object observer)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">unRegisterObserver</span><span class="params">(Object observer)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">registerNetworkCallback</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">unRegisterNetworkCallback</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>再创建一个单例类</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Created by DevYM</span></span><br><span class="line"><span class="comment"> * description：NetworkManager单例</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NetworkManager</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> NetworkManager instance;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> INetwork networkCallback;</span><br><span class="line">    <span class="keyword">private</span> Application application;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">NetworkManager</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.LOLLIPOP) &#123;</span><br><span class="line">            networkCallback = <span class="keyword">new</span> NetworkCallbackImpl();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            networkCallback = <span class="keyword">new</span> NetworkStateReceiver();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> NetworkManager <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (NetworkManager.class) &#123;</span><br><span class="line">                <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    instance = <span class="keyword">new</span> NetworkManager();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Application <span class="title">getApplication</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (application == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(<span class="string">&quot;application is not init&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> application;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(Application application)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.application == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">this</span>.application = application;</span><br><span class="line">            networkCallback.registerNetworkCallback();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unRegisterNetworkCallback</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        networkCallback.unRegisterNetworkCallback();</span><br><span class="line">        application = <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerObserver</span><span class="params">(Object observer)</span> </span>&#123;</span><br><span class="line">        networkCallback.registerObserver(observer);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unRegisterObserver</span><span class="params">(Object observer)</span> </span>&#123;</span><br><span class="line">        networkCallback.unRegisterObserver(observer);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>创建一个枚举类用来区分网络状态</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Created by DevYM</span></span><br><span class="line"><span class="comment"> * description：网络类型枚举</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">NetworkType</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    AUTO, <span class="comment">// 有网络</span></span><br><span class="line"></span><br><span class="line">    WIFI, <span class="comment">// WIFI</span></span><br><span class="line"></span><br><span class="line">    MOBILE, <span class="comment">// 移动网络</span></span><br><span class="line"></span><br><span class="line">    NONE, <span class="comment">// 没有网络</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>Android5.0以上采用实现ConnectivityManager.NetworkCallback类方式</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Created by DevYM</span></span><br><span class="line"><span class="comment"> * description：网络状态回调实现类</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NetworkCallbackImpl</span> <span class="keyword">extends</span> <span class="title">ConnectivityManager</span>.<span class="title">NetworkCallback</span> <span class="keyword">implements</span> <span class="title">INetwork</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> ConnectivityManager connectivityManager;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> List&lt;Network&gt; networkList;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;Object, List&lt;MethodBean&gt;&gt; methodMap;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">NetworkCallbackImpl</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        networkList = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        methodMap = <span class="keyword">new</span> ArrayMap&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAvailable</span><span class="params">(Network network)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onAvailable(network);</span><br><span class="line">        networkList.add(network);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onLost</span><span class="params">(Network network)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onLost(network);</span><br><span class="line">        networkList.remove(network);</span><br><span class="line">        <span class="keyword">if</span> (networkList.isEmpty()) &#123;</span><br><span class="line">            NetworkUtils.postNetworkTypeCallback(methodMap, NetworkType.NONE);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCapabilitiesChanged</span><span class="params">(Network network, NetworkCapabilities networkCapabilities)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCapabilitiesChanged(network, networkCapabilities);</span><br><span class="line">        <span class="keyword">if</span> (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) &#123;</span><br><span class="line">            NetworkType networkType;</span><br><span class="line">            <span class="keyword">if</span> (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) &#123;</span><br><span class="line">                networkType = NetworkType.WIFI;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) &#123;</span><br><span class="line">                networkType = NetworkType.MOBILE;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                networkType = NetworkType.AUTO;</span><br><span class="line">            &#125;</span><br><span class="line">            NetworkUtils.postNetworkTypeCallback(methodMap, networkType);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerObserver</span><span class="params">(Object observer)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// observer所有网络监听注解方法</span></span><br><span class="line">        List&lt;MethodBean&gt; methodList = methodMap.get(observer);</span><br><span class="line">        <span class="keyword">if</span> (methodList == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 添加方法</span></span><br><span class="line">            methodList = NetworkUtils.findAnnotationMethod(observer);</span><br><span class="line">            methodMap.put(observer, methodList);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从集合中移除</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> observer</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unRegisterObserver</span><span class="params">(Object observer)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!methodMap.isEmpty()) &#123;</span><br><span class="line">            methodMap.remove(observer);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerNetworkCallback</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (connectivityManager == <span class="keyword">null</span>) &#123;</span><br><span class="line">            NetworkRequest.Builder builder = <span class="keyword">new</span> NetworkRequest.Builder();</span><br><span class="line">            NetworkRequest request = builder.build();</span><br><span class="line">            connectivityManager = (ConnectivityManager) NetworkManager.getInstance().getApplication().getSystemService(Context.CONNECTIVITY_SERVICE);</span><br><span class="line">            <span class="keyword">if</span> (connectivityManager != <span class="keyword">null</span>) &#123;</span><br><span class="line">                connectivityManager.registerNetworkCallback(request, <span class="keyword">this</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unRegisterNetworkCallback</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 应用退出时</span></span><br><span class="line">        <span class="keyword">if</span> (!methodMap.isEmpty()) &#123;</span><br><span class="line">            methodMap.clear();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (connectivityManager != <span class="keyword">null</span>) &#123;</span><br><span class="line">            connectivityManager.unregisterNetworkCallback(<span class="keyword">this</span>);</span><br><span class="line">            connectivityManager = <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>动态注册广播方式监听网络变化</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Created by DevYM on 2019/7/5</span></span><br><span class="line"><span class="comment"> * description：网络状态变化广播方式监听</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NetworkStateReceiver</span> <span class="keyword">extends</span> <span class="title">BroadcastReceiver</span> <span class="keyword">implements</span> <span class="title">INetwork</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> NetworkType curNetworkType;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;Object, List&lt;MethodBean&gt;&gt; methodMap;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">NetworkStateReceiver</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        methodMap = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReceive</span><span class="params">(Context context, Intent intent)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (intent == <span class="keyword">null</span> || intent.getAction() == <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">if</span> (intent.getAction().equalsIgnoreCase(NetworkUtils.ANDROID_NETWORK_CHANGE_ACTION)) &#123;</span><br><span class="line">            <span class="comment">// 监听到网络状态</span></span><br><span class="line">            NetworkType tempType;</span><br><span class="line">            <span class="keyword">if</span> (NetworkUtils.isNetworkAvailable()) &#123;</span><br><span class="line">                tempType = NetworkUtils.getNetType();</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                tempType = NetworkType.NONE;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (tempType != <span class="keyword">null</span> &amp;&amp; tempType != curNetworkType) &#123;</span><br><span class="line">                curNetworkType = tempType; <span class="comment">// 防止多次刷新重复状态的情况</span></span><br><span class="line">                NetworkUtils.postNetworkTypeCallback(methodMap, curNetworkType); <span class="comment">// 总线：全局通知</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerObserver</span><span class="params">(Object observer)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// observer所有网络监听注解方法</span></span><br><span class="line">        List&lt;MethodBean&gt; methodList = methodMap.get(observer);</span><br><span class="line">        <span class="keyword">if</span> (methodList == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 添加方法</span></span><br><span class="line">            methodList = NetworkUtils.findAnnotationMethod(observer);</span><br><span class="line">            methodMap.put(observer, methodList);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 从集合中移除</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> observer</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unRegisterObserver</span><span class="params">(Object observer)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!methodMap.isEmpty()) &#123;</span><br><span class="line">            methodMap.remove(observer);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerNetworkCallback</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 动态注册广播</span></span><br><span class="line">        IntentFilter filter = <span class="keyword">new</span> IntentFilter();</span><br><span class="line">        filter.addAction(NetworkUtils.ANDROID_NETWORK_CHANGE_ACTION);</span><br><span class="line">        NetworkManager.getInstance().getApplication().registerReceiver(<span class="keyword">this</span>, filter);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unRegisterNetworkCallback</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 应用退出时</span></span><br><span class="line">        <span class="keyword">if</span> (!methodMap.isEmpty()) &#123;</span><br><span class="line">            methodMap.clear();</span><br><span class="line">        &#125;</span><br><span class="line">        NetworkManager.getInstance().getApplication().unregisterReceiver(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>用法</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 可在application类中进行初始化</span></span><br><span class="line">NetworkManager.getInstance().init(<span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 应用退出时进行反注册</span></span><br><span class="line">NetworkManager.getInstance().unRegisterNetworkCallback();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在需要监听网络状态的类中进行注册观察者</span></span><br><span class="line">NetworkManager.getInstance().registerObserver(<span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 此处采用面向切面的思路来实现，在当前类中添加带@NetworkAnnotation注解的方法（有且只能有一个）</span></span><br><span class="line"><span class="meta">@NetworkAnnotation(netType = NetworkType.AUTO)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">network</span><span class="params">(NetworkType networkType)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (networkType) &#123;</span><br><span class="line">        <span class="keyword">case</span> WIFI:</span><br><span class="line">            Log.e(Constants.LOG_TAG, <span class="string">&quot;当前是WIFI网络&quot;</span>);</span><br><span class="line">            Toast.makeText(<span class="keyword">this</span>, <span class="string">&quot;当前是WIFI网络&quot;</span>, Toast.LENGTH_SHORT).show();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> MOBILE:</span><br><span class="line">            Log.e(Constants.LOG_TAG, <span class="string">&quot;当前是蜂窝移动网络&quot;</span> + networkType.name());</span><br><span class="line">            Toast.makeText(<span class="keyword">this</span>, <span class="string">&quot;当前是蜂窝移动网络&quot;</span>, Toast.LENGTH_SHORT).show();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> NONE:</span><br><span class="line">            Log.e(Constants.LOG_TAG, <span class="string">&quot;BaseActivity &gt;&gt;&gt; NET_NONE&quot;</span>);</span><br><span class="line">            Toast.makeText(<span class="keyword">this</span>, <span class="string">&quot;当前无网络连接&quot;</span>, Toast.LENGTH_SHORT).show();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在界面关闭时或不需要监听时进行反注册观察者</span></span><br><span class="line">NetworkManager.getInstance().unRegisterObserver(<span class="keyword">this</span>);</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+
+    
+      
+
+    <span class="post-categories">
+      <i class="icon-categories"></i>
+        <a href="/categories/基础架构/">基础架构</a>
+    </span>
+    
+
+    
+    
+
+    <span class="post-tags">
+      <i class="icon-tags"></i>
+        <a href="/tags/网络状态/">网络状态</a>
+    </span>
+    
+
+    </div>
+
+    
+  </div>
+</article>
+
+  
+	<section id="comment" class="comment">
+		<div id="gitalk-container"></div>
+	</section>
+	<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+	<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+	<script>
+		var gitalk = new Gitalk({
+			clientID: '674be299c17c8b33a10d',
+			clientSecret: '944492aa3c097c2e7bbdd7b0d35c20bf3bcc3104',
+			repo: 'devym.github.io',
+			owner: 'DevYM',
+			admin: ['DevYM'],
+			id: location.pathname,
+			distractionFreeMode: false
+		})
+
+		gitalk.render('gitalk-container')
+	</script>
+
+
+
+
+	<section id="comment" class="comment">
+	  <div id="disqus_thread">
+	  <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+	  </div>
+	</section>
+
+	<script type="text/javascript">
+	var disqus_shortname = 'DevYM';
+	(function(){
+	  var dsq = document.createElement('script');
+	  dsq.type = 'text/javascript';
+	  dsq.async = true;
+	  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	}());
+	(function(){
+	  var dsq = document.createElement('script');
+	  dsq.type = 'text/javascript';
+	  dsq.async = true;
+	  dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+	  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	}());
+	</script>
+
+
+
+
+    </main>
+
+    <footer class="site-footer">
+  <p class="site-info">
+    Proudly powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and
+    Theme by <a href="https://github.com/CodeDaraW/Hacker" target="_blank">Hacker</a>
+    </br>
+    
+    &copy; 2022 DevYM
+    
+  </p>
+</footer>
+    
+    
+  </div>
+</div>
+</body>
+</html>
